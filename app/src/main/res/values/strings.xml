@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">color lock</string>
+    <string name="title_activity_color">color</string>
+    <string name="title_activity_red_start">redStart</string>
+</resources>

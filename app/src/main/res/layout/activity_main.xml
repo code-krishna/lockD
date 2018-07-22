@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="85dp"
-        android:src="@drawable/imagelock" />
+         />
 
     <Button
         android:id="@+id/myButton"

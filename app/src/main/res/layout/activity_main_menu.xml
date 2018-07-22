@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,39 +8,62 @@
     tools:context=".Main_menu"
     android:background="@color/black">
 
-    <Button
-        android:layout_width="228dp"
-        android:layout_height="51dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="22dp"
-        android:foregroundGravity="center"
-        android:gravity="center"
-        android:text="Generate Sequence"
-        android:id="@+id/Sequence"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="228dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.563"
+        tools:layout_editor_absoluteX="0dp">
 
-    <Button
-        android:layout_width="228dp"
-        android:layout_height="51dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="94dp"
-        android:foregroundGravity="center"
-        android:gravity="center"
-        android:text="My Networks"
-        android:id="@+id/MyNetwork"/>
+        <Button
+            android:id="@+id/sequence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#525dd1"
+            android:text="GENERATE SEQUENCE"
+            android:textColor="@android:color/background_light"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="77dp" />
 
-    <Button
-        android:layout_width="228dp"
-        android:layout_height="51dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="166dp"
-        android:foregroundGravity="center"
-        android:gravity="center"
-        android:text="Join Network"
-        android:id="@+id/JoinNetwork"/>
+        <Button
+            android:id="@+id/networks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#525dd1"
+            android:text="MY NETWORKS"
+            android:textColor="@android:color/background_light"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/joinnetwork"
+            app:layout_constraintTop_toBottomOf="@+id/sequence"
+            app:layout_constraintVertical_bias="0.816"
+            tools:layout_editor_absoluteX="78dp" />
 
+        <Button
+            android:id="@+id/joinnetwork"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#525dd1"
+            android:text="JOIN NETWORK"
+            android:textColor="@android:color/background_light"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/navigation"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintStart_toStartOf="parent" />
+    </LinearLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
@@ -54,4 +77,12 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" />
 
-</RelativeLayout>
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:name="com.example.hp.colorlock.MyNetworksFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="3dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+</android.support.constraint.ConstraintLayout>

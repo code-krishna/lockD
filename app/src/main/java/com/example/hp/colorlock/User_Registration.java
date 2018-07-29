@@ -15,9 +15,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class User_Registration extends AppCompatActivity {
     private Button register;
@@ -25,6 +28,11 @@ public class User_Registration extends AppCompatActivity {
     private TextView already_reg;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
+    private FirebaseDatabase database;
+    private DatabaseReference dataRef;
+    private FirebaseApp fireApp;
+    private String uid;
+    private User userData;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +61,7 @@ public class User_Registration extends AppCompatActivity {
                 }else{
                     String em=email.getText().toString();
                     String pass=password.getText().toString();
+                    userData = new User(em,pass);
                     progressDialog.setMessage("Registering..");
                     progressDialog.show();
                     createAccount(em,pass);
@@ -72,6 +81,8 @@ public class User_Registration extends AppCompatActivity {
                             // Log.d(TAG, "createUserWithEmail:success");
                             //FirebaseUser user = firebaseAuth.getCurrentUser();
                             // updateUI(user);
+                            uid = firebaseAuth.getUid();
+                            upload_userData(uid,userData);
                             Toast.makeText(getApplicationContext(),"Registration successful!",Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(User_Registration.this,Main_menu.class));
                             progressDialog.hide();
@@ -88,6 +99,13 @@ public class User_Registration extends AppCompatActivity {
                         // [END_EXCLUDE]
                     }
                 });
+    }
+
+    private void upload_userData(String uid,User user_data ) {
+        dataRef = FirebaseDatabase.getInstance().getReference("users/"+uid+"/USER_DATA/");
+        dataRef.setValue(user_data);
+
+
     }
     // [END create_user_with_email]
 }

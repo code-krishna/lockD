@@ -1,19 +1,27 @@
 package com.example.hp.colorlock;
 
 public class User {
-    private String user_id;
-    private String email;
+    private String EMAIL;
+    private String PASS;
 
-    public User(String uid,String email){
-        user_id=uid;
-        this.email=email;
+    public User(String email,String pass){
+        this.EMAIL = email;
+        this.PASS = pass;
     }
 
-    public String getUser_id() {
-        return user_id;
+    public String getEMAIL() {
+        return EMAIL;
     }
 
-    public String getEmail() {
-        return email;
+    public void setEMAIL(String EMAIL) {
+        this.EMAIL = EMAIL;
+    }
+
+    public String getPASS() {
+        return PASS;
+    }
+
+    public void setPASS(String PASS) {
+        this.PASS = PASS;
     }
 }

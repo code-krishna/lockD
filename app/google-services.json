@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "872099098670",
+    "firebase_url": "https://lockd-1469b.firebaseio.com",
+    "project_id": "lockd-1469b",
+    "storage_bucket": "lockd-1469b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:872099098670:android:72980ccf85cc6d61",
+        "android_client_info": {
+          "package_name": "com.example.hp.colorlock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "872099098670-7pmmgnbpbvavudfk8rek5hfb6p6fdl9b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hp.colorlock",
+            "certificate_hash": "12a2c9e7e2e2f8220cf37fab6808612b8f09b281"
+          }
+        },
+        {
+          "client_id": "872099098670-l9sf0mbdeuqujjplarknm00pf127rc5b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEyuY6xZ7Jsrxb8g3DuUwIR--D1KLi3ho"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "872099098670-l9sf0mbdeuqujjplarknm00pf127rc5b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

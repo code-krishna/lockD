@@ -14,12 +14,9 @@ import java.util.ArrayList;
 
 public class JoinNetworksFragment extends Fragment {
 
-
     public JoinNetworksFragment() {
-        // Required empty public constructor
+
     }
-
-
     // TODO: Rename and change types and number of parameters
     public static JoinNetworksFragment newInstance() {
         JoinNetworksFragment fragment = new JoinNetworksFragment();

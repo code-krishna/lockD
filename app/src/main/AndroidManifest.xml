@@ -35,12 +35,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" />
+
         <activity
             android:name=".Main_menu"
             android:label="@string/title_activity_main_menu" />
+        <activity android:name=".User_Registration"
+            android:label="Register"/>
+        <activity
+            android:name=".LoginActivity2"
+            android:label="@string/title_activity_login2"></activity>
     </application>
 
 </manifest>

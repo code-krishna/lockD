@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent j = new Intent(view.getContext(),RedStart.class);
                 startActivity(j);
                 Handler handler  = new Handler();
-                handler.postDelayed(new Runnable() {
+                handler.postDelayed(new Runnable(){
                     @Override
                     public void run() {
                         startActivityForResult(i,DETAIL_REQUEST);

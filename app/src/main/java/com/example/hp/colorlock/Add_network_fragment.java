@@ -1,22 +1,19 @@
 package com.example.hp.colorlock;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,28 +21,29 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+
+//import static com.example.hp.colorlock.User_Registration.admin_name;
 
 public class Add_network_fragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private ArrayList<String> network_id_list=new ArrayList<>();
+    private ArrayList<String> network_id_list = new ArrayList<>();
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private EditText net_id,pass,net_name;
-    private String network_id,password,network_name;
+    private String email;
+    private EditText net_id, pass, net_name;
+    private String network_id, password, network_name;
     private Button add_button;
     //Firebase parameter
     private FirebaseApp firebaseApp;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private SharedPreferences sharedPreferences;
-    private Map<String,Object> mp;
-    private ArrayList<String> arrayList=new ArrayList<>();
+    private Map<String, Object> mp;
+    private ArrayList<Network> arrayList = new ArrayList<>();
+    private ProgressDialog progressDialog;
     public Add_network_fragment() {
         // Required empty public constructor
     }
@@ -71,66 +69,71 @@ public class Add_network_fragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        progressDialog=new ProgressDialog(getActivity());
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.add_network, container, false);
-        sharedPreferences=getActivity().getSharedPreferences("user_credentials",Context.MODE_PRIVATE);
-        final String master_id=sharedPreferences.getString("user_id","");
-        firebaseApp=FirebaseApp.getInstance();
-        firebaseDatabase=FirebaseDatabase.getInstance(firebaseApp);
-        databaseReference=firebaseDatabase.getReference("users");
+        sharedPreferences = getActivity().getSharedPreferences("user_credentials", Context.MODE_PRIVATE);
+        final String master_id = sharedPreferences.getString("user_id", "");
+        firebaseApp = FirebaseApp.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance(firebaseApp);
 
-        net_id=rootView.findViewById(R.id.network_id);
-        pass=rootView.findViewById(R.id.password);
-        net_name=rootView.findViewById(R.id.name);
+        net_id = rootView.findViewById(R.id.network_id);
+        pass = rootView.findViewById(R.id.password);
+        net_name = rootView.findViewById(R.id.name);
         //net_id=net_id.getText().toString();
-        add_button=rootView.findViewById(R.id.add);
+        add_button = rootView.findViewById(R.id.add_button);
         add_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(net_id.getText().toString().equals("")){
+                if (net_id.getText().toString().equals("")) {
                     net_id.setError("This field is empty!");
                 }
-                if(net_name.getText().toString().equals("")){
+                if (net_name.getText().toString().equals("")) {
                     net_name.setError("Name is mandatory!");
-                }else{
-                    network_id=net_id.getText().toString();
-                    network_name=net_name.getText().toString();
-                    databaseReference.child("user_id").equalTo(master_id).addChildEventListener(new ChildEventListener() {
+                }if(pass.getText().toString().equals("")){
+                    pass.setError("Enter password!");
+                }
+                else {
+                    progressDialog.setMessage("Adding...");
+                    progressDialog.show();
+                    network_id = net_id.getText().toString();
+                    network_name = net_name.getText().toString();
+                    password=pass.getText().toString();
+                    databaseReference = FirebaseDatabase.getInstance().getReference();
+
+                    //DatabaseReference userNameRef = databaseReference
+                    //       .child("users").child(FirebaseAuth.getInstance().getUid()).child("Networks").child(network_id);
+                    final SharedPreferences ret_cred = getActivity().getSharedPreferences("credentials", Context.MODE_PRIVATE);
+                   // email = trim_email(ret_cred.getString(FirebaseAuth.getInstance().getUid(),"NULL"));
+                    DatabaseReference networkref = databaseReference.child("networks").child(network_id);
+                    ValueEventListener eventListener = new ValueEventListener() {
                         @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            arrayList=(ArrayList<String>)dataSnapshot.getValue();
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (!dataSnapshot.exists()) {
+                                progressDialog.dismiss();
+                                databaseReference = firebaseDatabase
+                                        .getReference("networks/" +network_id);
+                                Network network = new Network(network_id,password, network_name,ret_cred.getString("user_name","NULL"));
+                                  //   Log.i("admin_name",ret_cred.getString("user_name","NULL"));
+                                databaseReference.setValue(network);
+                                databaseReference=firebaseDatabase.getReference("users/"+ret_cred.getString("user_id","NULL")+"/my_networks/"+network_id);
+                                network=new Network(network_id,password,network_name);
+                                databaseReference.setValue(network);
+                                Toast.makeText(getActivity(), "Network added successfully!", Toast.LENGTH_SHORT).show();
+                            } else {
+//                                network_id_is_unique=false;
+                                Toast.makeText(getActivity(), "This id already exists!", Toast.LENGTH_SHORT).show();
+                            }
                         }
-
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-
                         }
-                    });
-                    arrayList.add(network_id);
-                    databaseReference.push().setValue(arrayList);
-                    Toast.makeText(getActivity(),"Network added successfully!",Toast.LENGTH_SHORT).show();
+                    };
+                    networkref.addListenerForSingleValueEvent(eventListener);
+
                 }
             }
         });
@@ -141,6 +144,18 @@ public class Add_network_fragment extends Fragment {
     public void onButtonPressed(Uri uri) {
 
     }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+       // SharedPreferences preferences = context.getSharedPreferences("credentials", 0);
+        //email=preferences.getString(FirebaseAuth.getInstance().getUid(),"NULL");
+    }
+    public String trim_email(String email) {
+        String alphaAndDigits = email.replaceAll("[^a-zA-Z0-9]+","");
+        return alphaAndDigits;
+    }
+
+
 
 
 

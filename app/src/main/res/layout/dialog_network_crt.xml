@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_gravity="center"
+    android:layout_height="60dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:textSize="20dp"
+        android:id="@+id/crt_net_dial1"
+        android:text="Network Name : "/>
+<EditText
+    android:layout_width="125dp"
+    android:id="@+id/crt_net_dial_edit"
+    android:layout_height="25dp"
+    android:textSize="20dp"
+    android:hint="Home"
+    android:layout_toRightOf="@+id/crt_net_dial1"
+    />
+    <TextView
+        android:layout_below="@+id/crt_net_dial1"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:textSize="20dp"
+        android:id="@+id/crt_pass_dial1"
+        android:text="Network Pass : "/>
+    <EditText
+        android:layout_width="125dp"
+        android:id="@+id/crt_net_pass_edit"
+        android:layout_height="25dp"
+        android:textSize="20dp"
+        android:hint="Home"
+        android:layout_below="@+id/crt_net_dial_edit"
+        android:layout_toRightOf="@+id/crt_pass_dial1"
+        />
+</RelativeLayout>

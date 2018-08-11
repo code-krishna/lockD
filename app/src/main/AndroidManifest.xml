@@ -40,10 +40,12 @@
             android:name=".Main_menu"
             android:label="@string/title_activity_main_menu" />
         <activity android:name=".User_Registration"
-            android:label="Register"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            />
         <activity
             android:name=".LoginActivity2"
-            android:label="@string/title_activity_login2"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            ></activity>
     </application>
 
 </manifest>

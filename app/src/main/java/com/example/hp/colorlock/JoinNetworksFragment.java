@@ -37,6 +37,7 @@ public class JoinNetworksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.join_network, container, false);
+
         return rootView;
     }
     @Override

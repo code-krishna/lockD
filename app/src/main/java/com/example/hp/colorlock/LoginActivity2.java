@@ -56,6 +56,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,11 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
     private FirebaseAuth firebaseAuth;
     private GoogleApiClient mGoogleApiClient;
     private ProgressDialog progressDialog;
+    private String email,password;
+    private TextView already_reg;
+    private String user_name,user_email,user_id;
+    private User userdata;
+
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -95,6 +101,7 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
+    private Button sign_in;
     private View mLoginFormView;
 
     @Override
@@ -106,8 +113,6 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
         firebaseAuth=FirebaseAuth.getInstance(firebaseApp);
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
-      //  populateAutoComplete();
-
         mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -119,19 +124,24 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
                 return false;
             }
         });
-
-        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        sign_in= findViewById(R.id.email_sign_in_button);
+        sign_in.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                //progressDialog.show();
                 attemptLogin();
             }
         });
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
-
+        already_reg=findViewById(R.id.already);
+        already_reg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent;
+                intent = new Intent(getApplicationContext(),User_Registration.class);
+                startActivity(intent);
+            }
+        });
+        mSignInButton = findViewById(R.id.sign_in_button);
         // Set click listeners
         mSignInButton.setOnClickListener(this);
         // Configure Google Sign In
@@ -145,15 +155,11 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
                 .build();
 
     }
-
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
         }
-
-        //getLoaderManager().initLoader(0, null, this);
     }
-
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -188,8 +194,6 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
             }
         }
     }
-
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -197,62 +201,92 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
      */
     private void attemptLogin() {
 
-        // Reset errors.
-       // mEmailView.setError(null);
-        //mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
+        email = mEmailView.getText().toString();
+        password = mPasswordView.getText().toString();
+        if(email.equals(""))
+            mEmailView.setError("Enter mail id!");
+        else if(!isEmailValid(email)){
+            mEmailView.setError("Enter valid email!");
         }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
+        if(password.equals(""))
+            mPasswordView.setError("Enter password!");
+        else if(!isPasswordValid(password)){
+            mPasswordView.setError("Password too short!");
         }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
+        else{
+            progressDialog.show();
+            progressDialog.setMessage("Signing in...");
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+
            // mAuthTask = new UserLoginTask(email, password);
            // mAuthTask.execute((Void) null);
-            firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(LoginActivity2.this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-                        showProgress(false);
-                        Toast.makeText(LoginActivity2.this, "Login successful", Toast.LENGTH_SHORT).show();
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
+                        //showProgress(false);
+                        //SharedPreferences.Editor editor=getSharedPreferences("credentials",0).edit();
+                        //editor.putString(FirebaseAuth.getInstance().getUid(),email);
+                        //editor.commit();
+                        final DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("user_ids").child(FirebaseAuth.getInstance().getUid());
+                        Log.i("firebase_auth=====",FirebaseAuth.getInstance().getUid());
+                        databaseReference.addValueEventListener(new ValueEventListener() {
                             @Override
-                            public void run() {
-                                startActivity(new Intent(LoginActivity2.this,Main_menu.class));
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(dataSnapshot.exists()){
+                                    user_id= String.valueOf(dataSnapshot.getValue());
+                                    Log.i("user_id Loginac2",user_id);
+                                    Toast.makeText(LoginActivity2.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                    saveSP(user_id);
+                                    progressDialog.dismiss();
+                                    startActivity(new Intent(LoginActivity2.this,Main_menu.class));
+                                }
                             }
-                        }, 2000);
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
                     }else{
+                        progressDialog.dismiss();
                         Toast.makeText(LoginActivity2.this,"Please try again with valid credentials!",Toast.LENGTH_SHORT).show();
-                        showProgress(false);
+                       // showProgress(false);
                     }
+                }
+                //to save the extracted user credentials in a shared preference
+                private void saveSP(String uid) {
+                    Log.i("savSP---------","HII");
+                    Log.i("user_id=======",uid);
+                    final DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("users/"+uid+"/USER_DATA");
+                    databaseReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists()){
+                                userdata=dataSnapshot.getValue(User.class);
+                                user_id=userdata.getUid();
+                                user_email=userdata.getEmail();
+                                user_name=userdata.getName();
+                                SharedPreferences.Editor editor=getSharedPreferences("credentials",0).edit();
+                                editor.putString("user_id",userdata.getUid());
+                                editor.putString("user_name",userdata.getName());
+                                editor.putString("user_email",userdata.getEmail());
+                                editor.commit();
+                                Log.i("user_id===========",user_id);
+                                Log.i("user_name=========",user_name);
+                                Log.i("user_email=========",user_email);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
                 }
             });
         }
@@ -271,38 +305,6 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
     /**
      * Shows the progress UI and hides the login form.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
 
     @Override
     public void onClick(View v) {
@@ -327,12 +329,13 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                progressDialog.hide();
+                progressDialog.dismiss();
                 // Google Sign-In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign-In failed
+                progressDialog.dismiss();
                 Log.e(TAG, "Google Sign-In failed.");
             }
         }
@@ -353,46 +356,6 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
                             Toast.makeText(LoginActivity2.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            //GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
-                            //SharedPreferences loginData =getApplicationContext().getSharedPreferences("user_credentials", Context.MODE_PRIVATE);
-                            //SharedPreferences.Editor editor = loginData.edit();
-//                            if (acct != null) {
-//                                String personId = acct.getId();
-//                                String email=acct.getEmail();
-//                                editor.putString("master_id",personId);
-//                                editor.putString("email",email);
-//                                FirebaseApp firebaseApp=FirebaseApp.getInstance();
-//                                FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance(firebaseApp);
-//                                DatabaseReference databaseReference=firebaseDatabase.getReference("users");
-//                                databaseReference.addChildEventListener(new ChildEventListener() {
-//                                    @Override
-//                                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                                        String key=dataSnapshot.getKey();
-//
-//                                    }
-//
-//                                    @Override
-//                                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//
-//                                    }
-//
-//                                    @Override
-//                                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//                                    }
-//
-//                                    @Override
-//                                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//                                    }
-//
-//                                    @Override
-//                                    public void onCancelled(DatabaseError databaseError) {
-//
-//                                    }
-//                                });
-//                                databaseReference.push().setValue(new User(personId,email));
-                            // }
                             startActivity(new Intent(LoginActivity2.this, Main_menu.class));
                             finish();
                         }
@@ -400,122 +363,11 @@ public class LoginActivity2 extends AppCompatActivity implements GoogleApiClient
                 });
 
     }
-
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-//        return new CursorLoader(this,
-//                // Retrieve data rows for the device user's 'profile' contact.
-//                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-//                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-//
-//                // Select only email addresses.
-//                ContactsContract.Contacts.Data.MIMETYPE +
-//                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-//                .CONTENT_ITEM_TYPE},
-//
-//                // Show primary email addresses first. Note that there won't be
-//                // a primary email address if the user hasn't specified one.
-//                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-//    }
 
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-//        List<String> emails = new ArrayList<>();
-//        cursor.moveToFirst();
-//        while (!cursor.isAfterLast()) {
-//            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-//            cursor.moveToNext();
-//        }
-//
-//        addEmailsToAutoComplete(emails);
-//    }
-
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-//
-//    }
-//
-//    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-//        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-//        ArrayAdapter<String> adapter =
-//                new ArrayAdapter<>(LoginActivity2.this,
-//                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-//
-//        mEmailView.setAdapter(adapter);
-//    }
-//
-//
-//    private interface ProfileQuery {
-//        String[] PROJECTION = {
-//                ContactsContract.CommonDataKinds.Email.ADDRESS,
-//                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-//        };
-//
-//        int ADDRESS = 0;
-//        int IS_PRIMARY = 1;
-//    }
-//
-//    /**
-//     * Represents an asynchronous login/registration task used to authenticate
-//     * the user.
-//     */
-//    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-//
-//        private final String mEmail;
-//        private final String mPassword;
-//
-//        UserLoginTask(String email, String password) {
-//            mEmail = email;
-//            mPassword = password;
-//        }
-//
-//        @Override
-//        protected Boolean doInBackground(Void... params) {
-//            // TODO: attempt authentication against a network service.
-//
-//            try {
-//                // Simulate network access.
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                return false;
-//            }
-//
-//            for (String credential : DUMMY_CREDENTIALS) {
-//                String[] pieces = credential.split(":");
-//                if (pieces[0].equals(mEmail)) {
-//                    // Account exists, return true if the password matches.
-//                    return pieces[1].equals(mPassword);
-//                }
-//            }
-//
-//            // TODO: register the new account here.
-//            return true;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(final Boolean success) {
-//            mAuthTask = null;
-//            showProgress(false);
-//
-//            if (success) {
-//                finish();
-//            } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
-//            }
-//        }
-//
-//        @Override
-//        protected void onCancelled() {
-//            mAuthTask = null;
-//            showProgress(false);
-//        }
-    //}
 }
 
